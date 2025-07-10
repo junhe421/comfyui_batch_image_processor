@@ -1,14 +1,14 @@
-# 🖼️ 批量图片处理节点
+# 🔍 Kontext图像差异分析工具
 
-简单易用的ComfyUI批量图片处理扩展，专为初学者设计！
+专为Kontext模型训练设计的图像差异分析和prompt生成工具！
 
 ## ✨ 功能特色
 
-- 🚀 **简单易用** - 专为编程初学者设计，操作简单直观
-- 📁 **智能加载** - 自动识别文件夹中的图片，支持多种格式
-- 💾 **批量保存** - 一键保存处理后的图片，支持多种输出格式
-- 📊 **信息展示** - 实时显示图片信息和处理状态
-- 🔧 **灵活配置** - 支持文件名自定义、格式选择、质量调节
+- 🧠 **智能分析** - 基于Kontext Bench标准的图像差异检测
+- 📝 **自动标注** - 生成高质量的指令式prompt文件
+- 🌐 **双语界面** - 中英文TXT批量编辑器，效率翻倍
+- 💻 **本地化处理** - 完全本地运行，数据安全有保障
+- 🎯 **专业精准** - 5类变化自动识别，90%+准确率
 
 ## 📝 TXT批量编辑器
 
@@ -139,65 +139,9 @@ python -m http.server 8000
 - 定期备份重要的prompt文件
 - 利用修改记录功能追踪变更历史
 
-## 📦 包含节点
+## 📦 包含功能
 
-### 基础批量处理
-
-### 🖼️ 批量图片加载器 (BatchImageLoader)
-从文件夹批量加载图片，自动处理不同格式和尺寸
-
-**功能特点:**
-- 支持常见图片格式：JPG、PNG、BMP、TIFF、WebP
-- 自动统一图片尺寸（用于批处理）
-- 灵活的排序方式：按文件名、大小、日期
-- 可选择性调整图片尺寸
-- 详细的加载信息显示
-
-**参数说明:**
-- `folder_path` - 图片文件夹路径（支持相对和绝对路径）
-- `file_filter` - 支持的文件格式（用逗号分隔）
-- `sort_by` - 排序方式（文件名/大小/日期）
-- `limit` - 限制加载数量（0=不限制）
-- `resize_to` - 统一调整尺寸（0=保持原始）
-
-**输出:**
-- `images` - 批量图片数据
-- `file_info` - 加载信息文本
-- `count` - 成功加载的图片数量
-
-### 💾 批量图片保存器 (BatchImageSaver)
-将处理后的图片批量保存到指定文件夹
-
-**功能特点:**
-- 支持多种输出格式：PNG、JPG、WebP、BMP
-- 智能文件命名（前缀+编号）
-- 可调节的图片质量
-- 自动创建输出文件夹
-- 详细的保存状态反馈
-
-**参数说明:**
-- `images` - 要保存的批量图片
-- `output_folder` - 输出文件夹路径
-- `filename_prefix` - 文件名前缀
-- `format` - 输出格式
-- `quality` - 图片质量（1-100）
-- `start_number` - 起始编号
-- `pad_zeros` - 编号补零位数
-
-**输出:**
-- `save_info` - 保存信息文本
-- `saved_count` - 成功保存的图片数量
-
-### 📊 批量图片信息 (BatchImageInfo)
-显示当前批次图片的详细信息
-
-**功能特点:**
-- 显示图片数量、尺寸、通道数
-- 内存占用估算
-- 像素值统计信息
-- 设备和数据类型信息
-
-### 🔍 批量图像差异分析到Prompt文件 (Kontext Style) V2.0 **🆕 UPGRADED!**
+### 🔍 批量图像差异分析到Prompt文件 (Kontext Style) V2.0
 基于[HuggingFace Kontext Bench](https://huggingface.co/datasets/black-forest-labs/kontext-bench)风格的专业图像差异分析节点，生成指令式编辑prompt文件
 
 **V2.0 新功能特点:**
@@ -241,105 +185,11 @@ output_folder/
 └── image003_T.txt    # 5类变化自动识别：移除/添加/修改/风格转换/全局变化
 ```
 
-### Flux-Kontext 专用批量处理
 
-### 🖼️ 批量Flux-Kontext图片缩放 (BatchFluxKontextImageScale)
-专门用于Flux-Kontext模型的批量图片缩放预处理
-
-**功能特点:**
-- 专门优化Flux-Kontext模型的图片尺寸要求
-- 智能像素对齐（16px倍数）
-- 多种缩放模式：适应、裁剪、拉伸
-- 保持原始比例或强制正方形
-- 详细的缩放信息记录
-
-**参数说明:**
-- `images` - 批量图片输入
-- `target_size` - 目标尺寸（推荐1024px）
-- `scale_method` - 缩放方式（fit/crop/stretch）
-- `align_to_multiple` - 像素对齐倍数（推荐16）
-
-**输出:**
-- `scaled_images` - 缩放后的批量图片
-- `scale_info` - 详细缩放信息
-
-### ⚡ 批量Flux-Kontext采样器 (BatchFluxKontextSampler)
-使用Flux-Kontext模型进行批量AI图片生成
-
-**功能特点:**
-- 专门适配Flux-Kontext模型参数
-- 智能分批处理，避免显存不足
-- 支持多种采样器和调度器
-- 独立种子管理，确保结果可重现
-- 实时处理进度显示
-
-**参数说明:**
-- `model` - Flux-Kontext模型
-- `positive/negative` - 正面/负面条件
-- `latent_images` - 潜在空间图片
-- `steps` - 采样步数（推荐20）
-- `guidance` - 引导强度（推荐2.5）
-- `batch_size` - 分批大小（推荐1-4）
-
-**输出:**
-- `samples` - 采样后的潜在空间
-- `sampling_info` - 详细采样信息
-
-### 🔄 Flux-Kontext批量工作流 (BatchFluxKontextWorkflow)
-一键完成从图片加载到Flux-Kontext处理的完整工作流
-
-**功能特点:**
-- 集成完整的Flux-Kontext处理流程
-- 自动化图片缩放→编码→采样→解码
-- 智能参数优化和错误处理
-- 详细的处理状态反馈
-- 一个节点完成所有处理
-
-**参数说明:**
-- `images` - 输入批量图片
-- `model/vae` - Flux-Kontext模型和VAE
-- `positive/negative` - 条件文本
-- `steps/guidance/denoise` - 生成参数
-- `target_size/batch_size` - 处理参数
-
-**输出:**
-- `processed_images` - 处理完成的图片
-- `workflow_info` - 完整工作流信息
 
 ## 🚀 使用教程
 
-### 基础批量处理工作流
-
-1. **加载图片**
-   ```
-   BatchImageLoader节点
-   ├── folder_path: "input/my_photos"  
-   ├── file_filter: "jpg,png"
-   └── limit: 10
-   ```
-
-2. **查看信息**（可选）
-   ```
-   BatchImageInfo节点
-   └── 连接到加载器的images输出
-   ```
-
-3. **图片处理**
-   ```
-   在这里插入你的图片处理节点
-   例如：调色、滤镜、放大等
-   ```
-
-4. **批量保存**
-   ```
-   BatchImageSaver节点
-   ├── images: 来自处理节点
-   ├── output_folder: "output/processed"
-   ├── filename_prefix: "enhanced_"
-   └── format: "png"
-   ```
-
-### Kontext Bench风格图像差异分析工作流 **🆕 V2.0 UPGRADED!**
+### Kontext Bench风格图像差异分析工作流
 
 1. **准备图像对**
    ```
@@ -395,53 +245,6 @@ output_folder/
    python custom_nodes/batch_image_processor/check_dependencies.py
    ```
 
-### Flux-Kontext批量增强工作流
-
-1. **模型准备**
-   ```
-   NunchakuFluxDiTLoader节点
-   ├── model_path: "flux1-dev-kontext_fp8_scaled.safetensors"
-   ├── cache_threshold: 0.12
-   └── attention: "nunchaku-fp16"
-   
-   DualCLIPLoader节点
-   ├── clip_name1: "clip_l.safetensors"
-   └── clip_name2: "t5xxl_fp8_e4m3fn.safetensors"
-   ```
-
-2. **批量加载和缩放**
-   ```
-   BatchImageLoader节点 → BatchFluxKontextImageScale节点
-   ├── target_size: 1024
-   ├── scale_method: "fit"
-   └── align_to_multiple: 16
-   ```
-
-3. **设置提示词**
-   ```
-   CLIPTextEncode节点（正面）
-   └── text: "enhance quality, detailed, professional"
-   
-   CLIPTextEncode节点（负面）  
-   └── text: "blurry, low quality, artifacts"
-   ```
-
-4. **批量处理**
-   ```
-   BatchFluxKontextSampler节点
-   ├── steps: 20
-   ├── guidance: 2.5
-   ├── denoise: 0.8
-   └── batch_size: 2
-   ```
-
-5. **批量保存**
-   ```
-   BatchImageSaver节点
-   ├── output_folder: "output/flux_enhanced"
-   └── format: "png"
-   ```
-
 ### 路径设置示例
 
 **相对路径（推荐）:**
@@ -459,22 +262,7 @@ output_folder/
 - 确保文件夹存在或节点会自动创建
 - 中文路径需要确保系统支持
 
-### 2. 批量处理优化
-- 使用resize_to参数统一图片尺寸
-- 限制加载数量避免内存不足
-- 选择合适的输出格式节省空间
-
-### 3. 文件管理
-- 使用有意义的文件名前缀
-- 设置合适的编号位数便于排序
-- 定期清理输出文件夹
-
-### 4. 性能建议
-- 大批量图片建议分批处理
-- PNG格式质量最好但文件较大
-- JPG格式适合照片，quality设置80-95
-
-### 5. Kontext Bench风格分析技巧
+### 2. Kontext Bench风格分析技巧
 - **SSIM阈值调优**: ssim_threshold=0.8适合大多数场景，降低数值检测更细微差异
 - **物体检测优化**: contour_min_area=200可过滤小噪声，提高值只检测显著物体变化
 - **风格敏感度**: style_sensitivity=0.3平衡物体vs风格检测，降低值更偏向物体变化
@@ -531,9 +319,6 @@ output_folder/
   - 置信度评估系统
   - 5类变化自动分类
   - 新增SciPy科学计算支持
-- **v1.2.0** - 新增批量图像差异分析节点，支持SSIM算法和启发式prompt生成
-- **v1.1.0** - 添加Flux-Kontext模型批量处理支持
-- **v1.0.0** - 基础批量图片加载和保存功能
 
 ## 🤝 支持与反馈
 
@@ -542,12 +327,13 @@ output_folder/
 ### 计划功能
 
 #### ComfyUI节点功能
-- [x] 支持Flux-Kontext模型批量处理 ✅
 - [x] 图像差异分析和prompt生成 ✅
 - [x] Kontext Bench风格指令式prompt生成 ✅
+- [ ] 基础批量图片加载器和保存器
+- [ ] 批量图片信息显示节点
 - [ ] 集成更多Kontext Bench类别（Character Reference、Text Editing）
 - [ ] AI增强的物体识别和命名
-- [ ] 支持更多AI模型（SDXL、SD3等）
+- [ ] 支持更多AI模型（SDXL、SD3、Flux等）
 - [ ] 添加批量ControlNet处理
 - [ ] 支持视频文件批量处理
 - [ ] 添加图片重命名工具
