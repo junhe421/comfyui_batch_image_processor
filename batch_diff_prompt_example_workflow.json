@@ -1,0 +1,179 @@
+{
+  "last_node_id": 6,
+  "last_link_id": 8,
+  "nodes": [
+    {
+      "id": 1,
+      "type": "BatchImageDifferenceToPromptFiles",
+      "pos": [200, 200],
+      "size": [400, 300],
+      "flags": {},
+      "order": 0,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "target_images_batch",
+          "type": "IMAGE",
+          "links": [1],
+          "slot_index": 0
+        },
+        {
+          "name": "analysis_report",
+          "type": "STRING",
+          "links": [2],
+          "slot_index": 1
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "BatchImageDifferenceToPromptFiles"
+      },
+             "widgets_values": [
+        "input/sources",
+        "input/targets", 
+        "output/kontext_prompts",
+        "_R",
+        "_T",
+        0.8,
+        200,
+        0.3,
+        false
+      ],
+      "title": "Batch Diff Prompt to Files",
+      "color": "#2a4b7c",
+      "bgcolor": "#3e5f8c"
+    },
+    {
+      "id": 2,
+      "type": "PreviewImage",
+      "pos": [700, 200],
+      "size": [300, 300],
+      "flags": {},
+      "order": 1,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "images",
+          "type": "IMAGE",
+          "link": 1
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "PreviewImage"
+      },
+      "title": "Preview Target Images",
+      "color": "#32a852",
+      "bgcolor": "#46c266"
+    },
+    {
+      "id": 3,
+      "type": "ShowText|pysssss",
+      "pos": [700, 550],
+      "size": [400, 200],
+      "flags": {},
+      "order": 2,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "text",
+          "type": "STRING",
+          "link": 2,
+          "widget": {
+            "name": "text"
+          }
+        }
+      ],
+      "outputs": [
+        {
+          "name": "STRING",
+          "type": "STRING",
+          "links": null
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "ShowText|pysssss"
+      },
+      "widgets_values": [
+        ""
+      ],
+      "title": "Processing Status Report",
+      "color": "#c9a832",
+      "bgcolor": "#ddb946"
+    },
+    {
+      "id": 4,
+      "type": "Note",
+      "pos": [200, 50],
+      "size": [800, 120],
+      "flags": {},
+      "order": 3,
+      "mode": 0,
+      "properties": {
+        "text": ""
+      },
+             "widgets_values": [
+        "Batch Image Difference to Prompt Files (Kontext Style) - V2.0 示例工作流\n\n📁 使用前请准备:\n1. input/sources/ 文件夹，包含原图（文件名以_R结尾）\n2. input/targets/ 文件夹，包含目标图（文件名以_T结尾）\n3. 确保原图和目标图前缀匹配，如: cat_R.png 对应 cat_T.png\n\n🔧 新参数说明:\n- ssim_threshold: SSIM相似性阈值 (0.0-1.0, 默认0.8)\n- contour_min_area: 物体检测最小轮廓面积 (50-5000, 默认200)\n- style_sensitivity: 风格变化检测敏感度 (0.1-1.0, 默认0.3)\n- enable_debug: 启用详细分析日志\n\n📄 Kontext Bench风格输出:\n- 指令式prompt保存到 output/kontext_prompts/ 文件夹\n- 自动分类: 移除/添加/修改/风格转换/全局变化\n- 参考HuggingFace Kontext Bench数据集风格"
+      ],
+      "title": "使用说明",
+      "color": "#432",
+      "bgcolor": "#653"
+    },
+    {
+      "id": 5,
+      "type": "Note",
+      "pos": [200, 550],
+      "size": [400, 150],
+      "flags": {},
+      "order": 4,
+      "mode": 0,
+      "properties": {
+        "text": ""
+      },
+             "widgets_values": [
+        "🎯 V2.0 核心功能:\n✅ Kontext Bench风格指令式prompt生成\n✅ 精确物体级别变化检测（添加/移除/修改）\n✅ 智能风格转换识别\n✅ 高级SSIM+像素差异分析\n✅ 多层次轮廓特征分析\n\n⚙️ 技术升级:\n- 参考HuggingFace Kontext Bench数据集\n- 5类变化自动分类\n- 置信度评估系统\n- 指令式描述生成（非描述性）\n- 支持scipy高级图像处理"
+      ],
+      "title": "节点特性",
+      "color": "#224",
+      "bgcolor": "#335"
+    },
+    {
+      "id": 6,
+      "type": "Note", 
+      "pos": [1150, 200],
+      "size": [300, 400],
+      "flags": {},
+      "order": 5,
+      "mode": 0,
+      "properties": {
+        "text": ""
+      },
+             "widgets_values": [
+        "📊 Kontext Bench风格指令示例:\n\n🔴 物体移除 (Removal):\n• \"remove the cat\"\n• \"delete the hat\"\n• \"take away the book\"\n• \"eliminate the car from the image\"\n\n🟢 物体添加 (Addition):\n• \"add a hat\"\n• \"give the person a bag\"\n• \"put sunglasses on the cat\"\n• \"place a flower in the image\"\n\n🟡 物体修改 (Modification):\n• \"make the cat fatter\"\n• \"change the car to red\"\n• \"turn the dress colorful\"\n• \"make the building bigger\"\n\n🎨 风格转换 (Style):\n• \"convert to cartoon style\"\n• \"apply watercolor effect\"\n• \"transform into anime\"\n• \"change the style to comic\"\n\n🌐 全局变化 (Global):\n• \"adjust the lighting\"\n• \"enhance the visual style\"\n• \"modify the image composition\"\n\n参考: HuggingFace Kontext Bench Dataset\n\n👨‍💻 作者信息:\n作者: Asir\nQQ交流群: 960598442\nDiscord: asir_50811\n公众号: AsirAI\n公众号: https://mp.weixin.qq.com/s/iRb8y5LKW46pXbYxTN0iRA"
+      ],
+      "title": "Prompt生成逻辑",
+      "color": "#242",
+      "bgcolor": "#353"
+    }
+  ],
+  "links": [
+    [1, 1, 0, 2, 0, "IMAGE"],
+    [2, 1, 1, 3, 0, "STRING"]
+  ],
+  "groups": [
+    {
+      "title": "批量图像差异分析工作流",
+      "bounding": [180, 20, 1300, 750],
+      "color": "#3f789e",
+      "font_size": 24,
+      "locked": false
+    }
+  ],
+  "config": {},
+  "extra": {
+    "ds": {
+      "scale": 0.7513148009015778,
+      "offset": [-134.02708556701816, 17.632926829268293]
+    }
+  },
+  "version": 0.4
+} 

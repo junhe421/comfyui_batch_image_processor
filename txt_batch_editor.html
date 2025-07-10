@@ -1,0 +1,1165 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>📝 TXT批量编辑器 - Kontext Prompt Files Editor</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+            height: calc(100vh - 40px);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #4f46e5, #7c3aed);
+            color: white;
+            padding: 20px;
+            text-align: center;
+            position: relative;
+        }
+
+        .header h1 {
+            font-size: 2rem;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            opacity: 0.9;
+            font-size: 1.1rem;
+        }
+
+        /* 语言切换按钮 */
+        .language-toggle {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            display: flex;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 25px;
+            padding: 4px;
+            -webkit-backdrop-filter: blur(10px);
+            backdrop-filter: blur(10px);
+        }
+
+        .lang-btn {
+            padding: 8px 16px;
+            border: none;
+            background: transparent;
+            color: white;
+            cursor: pointer;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            min-width: 50px;
+        }
+
+        .lang-btn.active {
+            background: rgba(255, 255, 255, 0.3);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .lang-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .main-content {
+            flex: 1;
+            display: flex;
+            overflow: hidden;
+        }
+
+        .sidebar {
+            width: 300px;
+            background: #f8fafc;
+            border-right: 1px solid #e2e8f0;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .sidebar-header {
+            padding: 20px;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .select-folder-btn {
+            width: 100%;
+            padding: 12px 20px;
+            background: linear-gradient(135deg, #10b981, #059669);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 6px rgba(16, 185, 129, 0.2);
+        }
+
+        .select-folder-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(16, 185, 129, 0.3);
+        }
+
+        .select-folder-btn:disabled {
+            background: #94a3b8;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .folder-info {
+            margin-top: 15px;
+            padding: 12px;
+            background: #e0f2fe;
+            border-radius: 6px;
+            font-size: 0.9rem;
+            color: #0f172a;
+            word-break: break-all;
+        }
+
+        .file-list {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+        }
+
+        .file-item {
+            padding: 12px 16px;
+            margin-bottom: 8px;
+            background: white;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .file-item:hover {
+            background: #f1f5f9;
+            border-color: #cbd5e1;
+            transform: translateX(4px);
+        }
+
+        .file-item.active {
+            background: #dbeafe;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.1);
+        }
+
+        .file-item.modified {
+            border-left: 4px solid #f59e0b;
+        }
+
+        .file-name {
+            font-weight: 500;
+            color: #1e293b;
+        }
+
+        .file-status {
+            font-size: 0.8rem;
+            color: #f59e0b;
+            font-weight: 600;
+        }
+
+        .editor-area {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            padding: 20px;
+        }
+
+        .editor-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .current-file {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #1e293b;
+        }
+
+        .editor-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 6px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .btn-primary {
+            background: #3b82f6;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #2563eb;
+        }
+
+        .btn-success {
+            background: #10b981;
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: #059669;
+        }
+
+        .btn:disabled {
+            background: #94a3b8;
+            cursor: not-allowed;
+        }
+
+        .editor-textarea {
+            flex: 1;
+            padding: 20px;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            line-height: 1.6;
+            resize: none;
+            outline: none;
+            transition: border-color 0.2s ease;
+        }
+
+        .editor-textarea:focus {
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+
+        .batch-operations {
+            width: 320px;
+            background: #f8fafc;
+            border-left: 1px solid #e2e8f0;
+            padding: 20px;
+            overflow-y: auto;
+        }
+
+        .batch-section {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+
+        .batch-section h3 {
+            font-size: 1.1rem;
+            color: #1e293b;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .batch-input {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid #e2e8f0;
+            border-radius: 6px;
+            font-size: 0.9rem;
+            margin-bottom: 10px;
+            transition: border-color 0.2s ease;
+        }
+
+        .batch-input:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.1);
+        }
+
+        .batch-textarea {
+            min-height: 80px;
+            resize: vertical;
+            font-family: inherit;
+        }
+
+        .stats {
+            background: #ecfdf5;
+            border: 1px solid #d1fae5;
+            border-radius: 6px;
+            padding: 15px;
+            margin-bottom: 15px;
+        }
+
+        .stats h4 {
+            color: #059669;
+            margin-bottom: 8px;
+        }
+
+        .stat-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 4px;
+            font-size: 0.9rem;
+        }
+
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 15px 20px;
+            border-radius: 8px;
+            color: white;
+            font-weight: 500;
+            z-index: 1000;
+            transform: translateX(100%);
+            transition: transform 0.3s ease;
+            min-width: 300px;
+        }
+
+        .notification.show {
+            transform: translateX(0);
+        }
+
+        .notification.success {
+            background: #10b981;
+        }
+
+        .notification.error {
+            background: #ef4444;
+        }
+
+        .notification.warning {
+            background: #f59e0b;
+        }
+
+        .notification.info {
+            background: #3b82f6;
+        }
+
+        .loading {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+            z-index: 1001;
+            text-align: center;
+        }
+
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid #f3f4f6;
+            border-top: 4px solid #3b82f6;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 15px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: #64748b;
+        }
+
+        .empty-state h3 {
+            margin-bottom: 10px;
+            color: #475569;
+        }
+
+        /* 作者信息区域样式 */
+        .footer {
+            background: #f8fafc;
+            border-top: 1px solid #e2e8f0;
+            padding: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .author-info {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        .author-name {
+            font-weight: 600;
+            color: #1e293b;
+            font-size: 0.95rem;
+        }
+
+        .contact-links {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .contact-link {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 12px;
+            background: white;
+            border: 1px solid #e2e8f0;
+            border-radius: 20px;
+            text-decoration: none;
+            color: #64748b;
+            font-size: 0.85rem;
+            transition: all 0.2s ease;
+        }
+
+        .contact-link:hover {
+            background: #f1f5f9;
+            border-color: #cbd5e1;
+            transform: translateY(-1px);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .contact-link.wechat:hover {
+            color: #059669;
+            border-color: #059669;
+        }
+
+        .contact-link.qq:hover {
+            color: #3b82f6;
+            border-color: #3b82f6;
+        }
+
+        .contact-link.discord:hover {
+            color: #7c3aed;
+            border-color: #7c3aed;
+        }
+
+        @media (max-width: 1024px) {
+            .main-content {
+                flex-direction: column;
+            }
+            
+            .sidebar, .batch-operations {
+                width: 100%;
+                max-height: 200px;
+            }
+
+            .footer {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .language-toggle {
+                position: static;
+                margin: 10px auto 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <!-- 语言切换按钮 -->
+            <div class="language-toggle">
+                <button class="lang-btn active" onclick="switchLanguage('zh')" data-lang="zh">中文</button>
+                <button class="lang-btn" onclick="switchLanguage('en')" data-lang="en">English</button>
+            </div>
+            
+            <h1 data-i18n="title">📝 TXT批量编辑器</h1>
+            <p data-i18n="subtitle">专为Kontext Prompt Files设计的高效文本编辑工具</p>
+        </div>
+
+        <div class="main-content">
+            <!-- 左侧文件列表 -->
+            <div class="sidebar">
+                <div class="sidebar-header">
+                    <button class="select-folder-btn" onclick="selectFolder()">
+                        <span data-i18n="select-folder">📁 选择文件夹</span>
+                    </button>
+                    <div class="folder-info" id="folderInfo" style="display: none;">
+                        <strong data-i18n="current-folder">📂 当前文件夹:</strong>
+                        <div id="folderPath"></div>
+                    </div>
+                </div>
+                <div class="file-list" id="fileList">
+                    <div class="empty-state">
+                        <h3 data-i18n="get-started">🚀 开始使用</h3>
+                        <p data-i18n="select-folder-tip">点击上方按钮选择包含.txt文件的文件夹</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 中间编辑区域 -->
+            <div class="editor-area">
+                <div class="editor-header">
+                    <div class="current-file" id="currentFile" data-i18n="select-file-tip">请选择文件进行编辑</div>
+                    <div class="editor-actions">
+                        <button class="btn btn-primary" id="saveCurrentBtn" onclick="saveCurrentFile()" disabled>
+                            <span data-i18n="save-current">💾 保存当前文件</span>
+                        </button>
+                        <button class="btn btn-success" id="saveAllBtn" onclick="saveAllFiles()" disabled>
+                            <span data-i18n="save-all">📥 全部保存</span>
+                        </button>
+                    </div>
+                </div>
+                <textarea class="editor-textarea" id="editorTextarea" data-i18n-placeholder="editor-placeholder" placeholder="选择左侧文件开始编辑..." disabled></textarea>
+            </div>
+
+            <!-- 右侧批量操作 -->
+            <div class="batch-operations">
+                <div class="batch-section">
+                    <h3 data-i18n="file-stats">📊 文件统计</h3>
+                    <div class="stats">
+                        <div class="stat-item">
+                            <span data-i18n="total-files">总文件数:</span>
+                            <span id="totalFiles">0</span>
+                        </div>
+                        <div class="stat-item">
+                            <span data-i18n="modified-files">已修改:</span>
+                            <span id="modifiedFiles">0</span>
+                        </div>
+                        <div class="stat-item">
+                            <span data-i18n="unsaved-files">未保存:</span>
+                            <span id="unsavedFiles">0</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="batch-section">
+                    <h3 data-i18n="batch-replace">🔄 批量替换</h3>
+                    <input type="text" class="batch-input" id="findText" data-i18n-placeholder="find-placeholder" placeholder="查找内容...">
+                    <textarea class="batch-input batch-textarea" id="replaceText" data-i18n-placeholder="replace-placeholder" placeholder="替换为..."></textarea>
+                    <button class="btn btn-primary" id="batchReplaceBtn" onclick="batchReplace()" disabled>
+                        <span data-i18n="execute-replace">🔄 执行替换</span>
+                    </button>
+                </div>
+
+                <div class="batch-section">
+                    <h3 data-i18n="quick-actions">⚡ 快捷操作</h3>
+                    <button class="btn btn-primary" id="refreshBtn" onclick="refreshFolder()" disabled style="width: 100%; margin-bottom: 10px;">
+                        <span data-i18n="refresh">🔄 刷新文件夹</span>
+                    </button>
+                    <button class="btn btn-success" id="exportBtn" onclick="exportModified()" disabled style="width: 100%;">
+                        <span data-i18n="export-report">📋 导出修改记录</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 作者信息区域 -->
+        <div class="footer">
+            <div class="author-info">
+                <div class="author-name" data-i18n="author">👨‍💻 作者：Asir</div>
+                <div class="contact-links">
+                    <a href="https://mp.weixin.qq.com/s/iRb8y5LKW46pXbYxTN0iRA" target="_blank" rel="noopener" class="contact-link wechat">
+                        📱 <span data-i18n="wechat">公众号：AsirAI</span>
+                    </a>
+                    <a href="#" onclick="copyToClipboard('960598442')" class="contact-link qq">
+                        👥 <span data-i18n="qq-group">QQ群：960598442</span>
+                    </a>
+                    <a href="#" onclick="copyToClipboard('asir_50811')" class="contact-link discord">
+                        💬 Discord: asir_50811
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 通知 -->
+    <div id="notification" class="notification"></div>
+
+    <!-- 加载状态 -->
+    <div id="loading" class="loading">
+        <div class="spinner"></div>
+        <div data-i18n="processing">处理中...</div>
+    </div>
+
+    <script>
+        // 语言包
+        const translations = {
+            zh: {
+                'title': '📝 TXT批量编辑器',
+                'subtitle': '专为Kontext Prompt Files设计的高效文本编辑工具',
+                'select-folder': '📁 选择文件夹',
+                'current-folder': '📂 当前文件夹:',
+                'get-started': '🚀 开始使用',
+                'select-folder-tip': '点击上方按钮选择包含.txt文件的文件夹',
+                'select-file-tip': '请选择文件进行编辑',
+                'save-current': '💾 保存当前文件',
+                'save-all': '📥 全部保存',
+                'editor-placeholder': '选择左侧文件开始编辑...',
+                'file-stats': '📊 文件统计',
+                'total-files': '总文件数:',
+                'modified-files': '已修改:',
+                'unsaved-files': '未保存:',
+                'batch-replace': '🔄 批量替换',
+                'find-placeholder': '查找内容...',
+                'replace-placeholder': '替换为...',
+                'execute-replace': '🔄 执行替换',
+                'quick-actions': '⚡ 快捷操作',
+                'refresh': '🔄 刷新文件夹',
+                'export-report': '📋 导出修改记录',
+                'author': '👨‍💻 作者：Asir',
+                'wechat': '公众号：AsirAI',
+                'qq-group': 'QQ群：960598442',
+                'processing': '处理中...',
+                'app-ready': '应用已就绪，请选择文件夹开始编辑',
+                'selecting-folder': '选择文件夹中...',
+                'folder-loaded': '成功加载文件夹',
+                'folder-select-failed': '选择文件夹失败',
+                'scanning-files': '📁 扫描文件中...',
+                'loading-failed': '❌ 加载失败',
+                'reload-folder': '请重新选择文件夹',
+                'no-txt-files': '📄 无TXT文件',
+                'no-txt-in-folder': '此文件夹内没有.txt文件',
+                'file-loaded': '已加载文件',
+                'saving-file': '保存文件中...',
+                'file-saved': '文件已保存',
+                'save-failed': '保存文件失败',
+                'saving-multiple': '个文件中...',
+                'files-saved': '成功保存',
+                'batch-save-failed': '批量保存失败',
+                'enter-find-text': '请输入要查找的内容',
+                'batch-replacing': '批量替换中...',
+                'files-replaced': '个文件中执行了替换操作',
+                'no-matches': '未找到匹配的内容',
+                'batch-replace-failed': '批量替换失败',
+                'list-refreshed': '文件列表已刷新',
+                'refresh-failed': '刷新失败',
+                'no-modifications': '没有修改需要导出',
+                'report-exported': '修改记录已导出',
+                'unsaved-changes': '当前文件有未保存的修改，确定要切换到其他文件吗？\n\n点击"确定"切换（丢失修改）\n点击"取消"留在当前文件',
+                'unsaved-warning': '有未保存的修改，确定要离开吗？',
+                'copied-to-clipboard': '已复制到剪贴板'
+            },
+            en: {
+                'title': '📝 TXT Batch Editor',
+                'subtitle': 'Efficient text editing tool designed for Kontext Prompt Files',
+                'select-folder': '📁 Select Folder',
+                'current-folder': '📂 Current Folder:',
+                'get-started': '🚀 Get Started',
+                'select-folder-tip': 'Click the button above to select a folder containing .txt files',
+                'select-file-tip': 'Please select a file to edit',
+                'save-current': '💾 Save Current File',
+                'save-all': '📥 Save All',
+                'editor-placeholder': 'Select a file from the left to start editing...',
+                'file-stats': '📊 File Statistics',
+                'total-files': 'Total Files:',
+                'modified-files': 'Modified:',
+                'unsaved-files': 'Unsaved:',
+                'batch-replace': '🔄 Batch Replace',
+                'find-placeholder': 'Find content...',
+                'replace-placeholder': 'Replace with...',
+                'execute-replace': '🔄 Execute Replace',
+                'quick-actions': '⚡ Quick Actions',
+                'refresh': '🔄 Refresh Folder',
+                'export-report': '📋 Export Report',
+                'author': '👨‍💻 Author: Asir',
+                'wechat': 'WeChat: AsirAI',
+                'qq-group': 'QQ Group: 960598442',
+                'processing': 'Processing...',
+                'app-ready': 'App is ready, please select a folder to start editing',
+                'selecting-folder': 'Selecting folder...',
+                'folder-loaded': 'Successfully loaded folder',
+                'folder-select-failed': 'Failed to select folder',
+                'scanning-files': '📁 Scanning files...',
+                'loading-failed': '❌ Loading failed',
+                'reload-folder': 'Please reselect folder',
+                'no-txt-files': '📄 No TXT files',
+                'no-txt-in-folder': 'No .txt files found in this folder',
+                'file-loaded': 'File loaded',
+                'saving-file': 'Saving file...',
+                'file-saved': 'File saved',
+                'save-failed': 'Failed to save file',
+                'saving-multiple': 'files...',
+                'files-saved': 'Successfully saved',
+                'batch-save-failed': 'Batch save failed',
+                'enter-find-text': 'Please enter content to find',
+                'batch-replacing': 'Batch replacing...',
+                'files-replaced': 'files processed with replacements',
+                'no-matches': 'No matching content found',
+                'batch-replace-failed': 'Batch replace failed',
+                'list-refreshed': 'File list refreshed',
+                'refresh-failed': 'Refresh failed',
+                'no-modifications': 'No modifications to export',
+                'report-exported': 'Modification report exported',
+                'unsaved-changes': 'Current file has unsaved changes. Do you want to switch to another file?\n\nClick "OK" to switch (lose changes)\nClick "Cancel" to stay on current file',
+                'unsaved-warning': 'You have unsaved changes. Are you sure you want to leave?',
+                'copied-to-clipboard': 'Copied to clipboard'
+            }
+        };
+
+        // 当前语言
+        let currentLanguage = 'zh';
+
+        // 全局变量
+        let directoryHandle = null;
+        let fileHandles = new Map();
+        let fileContents = new Map();
+        let modifiedFiles = new Set();
+        let currentFile = null;
+
+        // 语言切换函数
+        function switchLanguage(lang) {
+            currentLanguage = lang;
+            
+            // 更新按钮状态
+            document.querySelectorAll('.lang-btn').forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.lang === lang);
+            });
+            
+            // 更新HTML语言属性
+            document.documentElement.lang = lang === 'zh' ? 'zh-CN' : 'en';
+            
+            // 更新页面标题
+            document.title = translations[lang]['title'] + ' - Kontext Prompt Files Editor';
+            
+            // 更新所有带有 data-i18n 属性的元素
+            document.querySelectorAll('[data-i18n]').forEach(element => {
+                const key = element.dataset.i18n;
+                if (translations[lang][key]) {
+                    element.textContent = translations[lang][key];
+                }
+            });
+            
+            // 更新占位符文本
+            document.querySelectorAll('[data-i18n-placeholder]').forEach(element => {
+                const key = element.dataset.i18nPlaceholder;
+                if (translations[lang][key]) {
+                    element.placeholder = translations[lang][key];
+                }
+            });
+            
+            // 保存语言偏好
+            localStorage.setItem('preferred-language', lang);
+        }
+
+        // 复制到剪贴板函数
+        function copyToClipboard(text) {
+            navigator.clipboard.writeText(text).then(() => {
+                showNotification(translations[currentLanguage]['copied-to-clipboard'] + `: ${text}`, 'success');
+            }).catch(() => {
+                // 降级方案
+                const textArea = document.createElement('textarea');
+                textArea.value = text;
+                document.body.appendChild(textArea);
+                textArea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textArea);
+                showNotification(translations[currentLanguage]['copied-to-clipboard'] + `: ${text}`, 'success');
+            });
+        }
+
+        // 页面加载完成后的初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            // 检查浏览器支持
+            if (!('showDirectoryPicker' in window)) {
+                showNotification('您的浏览器不支持文件系统访问API，请使用Chrome、Edge等现代浏览器', 'error');
+                return;
+            }
+
+            // 恢复语言设置
+            const savedLanguage = localStorage.getItem('preferred-language') || 'zh';
+            switchLanguage(savedLanguage);
+
+            // 绑定文本框变化事件
+            document.getElementById('editorTextarea').addEventListener('input', handleTextareaChange);
+            
+            // 绑定快捷键
+            document.addEventListener('keydown', handleKeyDown);
+            
+            updateStats();
+            showNotification(translations[currentLanguage]['app-ready'], 'info');
+        });
+
+        // 选择文件夹
+        async function selectFolder() {
+            try {
+                showLoading(translations[currentLanguage]['selecting-folder']);
+                
+                directoryHandle = await window.showDirectoryPicker();
+                
+                await loadFiles();
+                
+                document.getElementById('folderInfo').style.display = 'block';
+                document.getElementById('folderPath').textContent = directoryHandle.name;
+                
+                // 启用相关按钮
+                document.getElementById('batchReplaceBtn').disabled = false;
+                document.getElementById('refreshBtn').disabled = false;
+                document.getElementById('exportBtn').disabled = false;
+                
+                showNotification(`${translations[currentLanguage]['folder-loaded']}: ${directoryHandle.name}`, 'success');
+                
+            } catch (error) {
+                if (error.name !== 'AbortError') {
+                    showNotification(translations[currentLanguage]['folder-select-failed'] + ': ' + error.message, 'error');
+                }
+            } finally {
+                hideLoading();
+            }
+        }
+
+        // 加载文件列表
+        async function loadFiles() {
+            fileHandles.clear();
+            fileContents.clear();
+            modifiedFiles.clear();
+            currentFile = null;
+
+            const fileList = document.getElementById('fileList');
+            fileList.innerHTML = `<div class="empty-state"><h3>${translations[currentLanguage]['scanning-files']}</h3></div>`;
+
+            try {
+                for await (const entry of directoryHandle.values()) {
+                    if (entry.kind === 'file' && entry.name.endsWith('.txt')) {
+                        fileHandles.set(entry.name, entry);
+                        
+                        // 读取文件内容
+                        const file = await entry.getFile();
+                        const content = await file.text();
+                        fileContents.set(entry.name, content);
+                    }
+                }
+
+                renderFileList();
+                updateStats();
+
+            } catch (error) {
+                showNotification(translations[currentLanguage]['loading-failed'] + ': ' + error.message, 'error');
+                fileList.innerHTML = `<div class="empty-state"><h3>${translations[currentLanguage]['loading-failed']}</h3><p>${translations[currentLanguage]['reload-folder']}</p></div>`;
+            }
+        }
+
+        // 渲染文件列表
+        function renderFileList() {
+            const fileList = document.getElementById('fileList');
+            
+            if (fileHandles.size === 0) {
+                fileList.innerHTML = `<div class="empty-state"><h3>${translations[currentLanguage]['no-txt-files']}</h3><p>${translations[currentLanguage]['no-txt-in-folder']}</p></div>`;
+                return;
+            }
+
+            const files = Array.from(fileHandles.keys()).sort();
+            
+            fileList.innerHTML = files.map(fileName => `
+                <div class="file-item ${currentFile === fileName ? 'active' : ''} ${modifiedFiles.has(fileName) ? 'modified' : ''}" 
+                     onclick="loadFile('${fileName}')">
+                    <span class="file-name">${fileName}</span>
+                    ${modifiedFiles.has(fileName) ? '<span class="file-status">*</span>' : ''}
+                </div>
+            `).join('');
+        }
+
+        // 加载文件内容到编辑器
+        async function loadFile(fileName) {
+            // 检查当前文件是否有未保存的修改
+            if (currentFile && modifiedFiles.has(currentFile)) {
+                const shouldSwitch = await confirmSwitch();
+                if (!shouldSwitch) return;
+            }
+
+            currentFile = fileName;
+            const content = fileContents.get(fileName) || '';
+            
+            document.getElementById('currentFile').textContent = fileName;
+            document.getElementById('editorTextarea').value = content;
+            document.getElementById('editorTextarea').disabled = false;
+            document.getElementById('saveCurrentBtn').disabled = false;
+
+            renderFileList();
+            showNotification(`${translations[currentLanguage]['file-loaded']}: ${fileName}`, 'info');
+        }
+
+        // 处理文本框内容变化
+        function handleTextareaChange() {
+            if (!currentFile) return;
+
+            const textarea = document.getElementById('editorTextarea');
+            const originalContent = fileContents.get(currentFile) || '';
+            
+            if (textarea.value !== originalContent) {
+                modifiedFiles.add(currentFile);
+                document.getElementById('saveAllBtn').disabled = false;
+            } else {
+                modifiedFiles.delete(currentFile);
+                if (modifiedFiles.size === 0) {
+                    document.getElementById('saveAllBtn').disabled = true;
+                }
+            }
+
+            renderFileList();
+            updateStats();
+        }
+
+        // 保存当前文件
+        async function saveCurrentFile() {
+            if (!currentFile) return;
+
+            try {
+                showLoading(translations[currentLanguage]['saving-file']);
+                
+                const textarea = document.getElementById('editorTextarea');
+                const content = textarea.value;
+                
+                const fileHandle = fileHandles.get(currentFile);
+                const writable = await fileHandle.createWritable();
+                await writable.write(content);
+                await writable.close();
+
+                // 更新内容缓存
+                fileContents.set(currentFile, content);
+                modifiedFiles.delete(currentFile);
+
+                renderFileList();
+                updateStats();
+                
+                if (modifiedFiles.size === 0) {
+                    document.getElementById('saveAllBtn').disabled = true;
+                }
+
+                showNotification(`${translations[currentLanguage]['file-saved']}: ${currentFile}`, 'success');
+
+            } catch (error) {
+                showNotification(translations[currentLanguage]['save-failed'] + ': ' + error.message, 'error');
+            } finally {
+                hideLoading();
+            }
+        }
+
+        // 保存所有修改的文件
+        async function saveAllFiles() {
+            if (modifiedFiles.size === 0) return;
+
+            try {
+                showLoading(`${translations[currentLanguage]['saving-file']} ${modifiedFiles.size} ${translations[currentLanguage]['saving-multiple']}`);
+                
+                const filesToSave = Array.from(modifiedFiles);
+                let savedCount = 0;
+
+                for (const fileName of filesToSave) {
+                    const fileHandle = fileHandles.get(fileName);
+                    let content;
+
+                    if (fileName === currentFile) {
+                        // 当前编辑的文件使用textarea内容
+                        content = document.getElementById('editorTextarea').value;
+                    } else {
+                        // 其他文件使用缓存内容
+                        content = fileContents.get(fileName);
+                    }
+
+                    const writable = await fileHandle.createWritable();
+                    await writable.write(content);
+                    await writable.close();
+
+                    // 更新内容缓存
+                    fileContents.set(fileName, content);
+                    savedCount++;
+                }
+
+                modifiedFiles.clear();
+                document.getElementById('saveAllBtn').disabled = true;
+
+                renderFileList();
+                updateStats();
+
+                showNotification(`${translations[currentLanguage]['files-saved']} ${savedCount} ${translations[currentLanguage]['saving-multiple']}`, 'success');
+
+            } catch (error) {
+                showNotification(translations[currentLanguage]['batch-save-failed'] + ': ' + error.message, 'error');
+            } finally {
+                hideLoading();
+            }
+        }
+
+        // 批量替换
+        async function batchReplace() {
+            const findText = document.getElementById('findText').value;
+            const replaceText = document.getElementById('replaceText').value;
+
+            if (!findText) {
+                showNotification(translations[currentLanguage]['enter-find-text'], 'warning');
+                return;
+            }
+
+            try {
+                showLoading(translations[currentLanguage]['batch-replacing']);
+                
+                let replacedCount = 0;
+                let affectedFiles = [];
+
+                for (const [fileName, content] of fileContents.entries()) {
+                    if (content.includes(findText)) {
+                        const newContent = content.replaceAll(findText, replaceText);
+                        fileContents.set(fileName, newContent);
+                        modifiedFiles.add(fileName);
+                        affectedFiles.push(fileName);
+                        replacedCount++;
+
+                        // 如果是当前编辑的文件，更新textarea
+                        if (fileName === currentFile) {
+                            document.getElementById('editorTextarea').value = newContent;
+                        }
+                    }
+                }
+
+                if (replacedCount > 0) {
+                    document.getElementById('saveAllBtn').disabled = false;
+                    renderFileList();
+                    updateStats();
+                    showNotification(`${translations[currentLanguage]['loading-failed']} ${replacedCount} ${translations[currentLanguage]['files-replaced']}`, 'success');
+                } else {
+                    showNotification(translations[currentLanguage]['no-matches'], 'info');
+                }
+
+            } catch (error) {
+                showNotification(translations[currentLanguage]['batch-replace-failed'] + ': ' + error.message, 'error');
+            } finally {
+                hideLoading();
+            }
+        }
+
+        // 刷新文件夹
+        async function refreshFolder() {
+            if (!directoryHandle) return;
+            
+            try {
+                await loadFiles();
+                showNotification(translations[currentLanguage]['list-refreshed'], 'success');
+            } catch (error) {
+                showNotification(translations[currentLanguage]['refresh-failed'] + ': ' + error.message, 'error');
+            }
+        }
+
+        // 导出修改记录
+        function exportModified() {
+            if (modifiedFiles.size === 0) {
+                showNotification(translations[currentLanguage]['no-modifications'], 'info');
+                return;
+            }
+
+            const report = {
+                timestamp: new Date().toISOString(),
+                folder: directoryHandle.name,
+                modifiedFiles: Array.from(modifiedFiles),
+                totalFiles: fileHandles.size
+            };
+
+            const blob = new Blob([JSON.stringify(report, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `modification_report_${Date.now()}.json`;
+            a.click();
+            URL.revokeObjectURL(url);
+
+            showNotification(translations[currentLanguage]['report-exported'], 'success');
+        }
+
+        // 更新统计信息
+        function updateStats() {
+            document.getElementById('totalFiles').textContent = fileHandles.size;
+            document.getElementById('modifiedFiles').textContent = modifiedFiles.size;
+            document.getElementById('unsavedFiles').textContent = modifiedFiles.size;
+        }
+
+        // 确认切换文件
+        function confirmSwitch() {
+            return new Promise((resolve) => {
+                const result = confirm(translations[currentLanguage]['unsaved-changes']);
+                resolve(result);
+            });
+        }
+
+        // 处理快捷键
+        function handleKeyDown(event) {
+            if (event.ctrlKey || event.metaKey) {
+                switch (event.key) {
+                    case 's':
+                        event.preventDefault();
+                        if (event.shiftKey) {
+                            saveAllFiles();
+                        } else {
+                            saveCurrentFile();
+                        }
+                        break;
+                    case 'f':
+                        event.preventDefault();
+                        document.getElementById('findText').focus();
+                        break;
+                }
+            }
+        }
+
+        // 显示通知
+        function showNotification(message, type = 'info') {
+            const notification = document.getElementById('notification');
+            notification.textContent = message;
+            notification.className = `notification ${type}`;
+            notification.classList.add('show');
+
+            setTimeout(() => {
+                notification.classList.remove('show');
+            }, 4000);
+        }
+
+        // 显示加载状态
+        function showLoading(message = translations[currentLanguage]['processing']) {
+            const loading = document.getElementById('loading');
+            loading.querySelector('div:last-child').textContent = message;
+            loading.style.display = 'block';
+        }
+
+        // 隐藏加载状态
+        function hideLoading() {
+            document.getElementById('loading').style.display = 'none';
+        }
+
+        // 页面卸载前检查未保存的修改
+        window.addEventListener('beforeunload', (event) => {
+            if (modifiedFiles.size > 0) {
+                event.preventDefault();
+                event.returnValue = translations[currentLanguage]['unsaved-warning'];
+            }
+        });
+    </script>
+</body>
+</html> 
