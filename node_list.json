@@ -1,0 +1,70 @@
+{
+    "custom_nodes": [
+        {
+            "author": "Asir",
+            "title": "ComfyUI Batch Image Processor - Kontext Style",
+            "reference": "https://github.com/asir/comfyui-batch-image-processor",
+            "files": [
+                "https://github.com/asir/comfyui-batch-image-processor"
+            ],
+            "install_type": "git-clone",
+            "description": "Kontext Bench风格的批量图像差异分析节点，支持SSIM分析、轮廓检测和指令式prompt生成。包含双语TXT批量编辑器，支持本地化数据处理。",
+            "nodename_pattern": "BatchImageDifferenceToPromptFiles",
+            "tags": [
+                "image-processing",
+                "batch-processing", 
+                "computer-vision",
+                "kontext-bench",
+                "prompt-generation",
+                "ssim",
+                "diff-analysis",
+                "txt-editor"
+            ],
+            "category": "IO/Batch Processing",
+            "version": "2.1.0",
+            "license": "MIT",
+            "python": ">=3.8",
+            "dependencies": {
+                "torch": ">=1.13.0",
+                "numpy": ">=1.21.0",
+                "pillow": ">=8.0.0", 
+                "opencv-python": ">=4.5.0",
+                "scikit-image": ">=0.19.0",
+                "scipy": ">=1.7.0"
+            },
+            "contact": {
+                "qq_group": "960598442",
+                "discord": "asir_50811",
+                "wechat_public": "AsirAI",
+                "wechat_article": "https://mp.weixin.qq.com/s/iRb8y5LKW46pXbYxTN0iRA"
+            },
+            "features": [
+                "Kontext Bench风格图像差异分析",
+                "5种变化类型检测 (removal/addition/modification/style/global)",
+                "SSIM相似性计算", 
+                "OpenCV轮廓检测",
+                "指令式prompt自动生成",
+                "批量图像对处理",
+                "双语TXT批量编辑器", 
+                "本地化数据处理",
+                "苹果风格UI设计",
+                "移动端响应式支持"
+            ],
+            "changelog": {
+                "2.1.0": [
+                    "新增双语TXT批量编辑器",
+                    "增强图像差异分析算法",
+                    "改进prompt生成质量",
+                    "新增移动端支持",
+                    "优化内存使用效率"
+                ],
+                "2.0.0": [
+                    "全新Kontext Bench风格分析引擎",
+                    "支持5种变化类型检测",
+                    "改进SSIM算法实现",
+                    "新增轮廓分析功能"
+                ]
+            }
+        }
+    ]
+} 

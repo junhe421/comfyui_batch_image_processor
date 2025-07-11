@@ -15,7 +15,7 @@ NODE_CLASS_MAPPINGS = diff_mappings
 NODE_DISPLAY_NAME_MAPPINGS = diff_display_mappings
 
 # 节点包信息
-__version__ = "2.0.0"
+__version__ = "2.1.0"
 __author__ = "Asir"
 __contact__ = {
     "qq": "960598442",

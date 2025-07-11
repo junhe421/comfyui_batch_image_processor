@@ -1,0 +1,19 @@
+# ComfyUI 批量图像差异分析节点依赖
+# 作者: Asir (QQ群: 960598442, Discord: asir_50811)
+
+# 核心依赖
+torch>=1.13.0
+numpy>=1.21.0
+pillow>=8.0.0
+
+# 计算机视觉库
+opencv-python>=4.5.0
+scikit-image>=0.19.0
+scipy>=1.7.0
+
+# 图像处理增强库
+skimage>=0.19.0
+
+# 可选依赖 (用于性能优化)
+# matplotlib>=3.5.0  # 用于可视化调试 (可选)
+# tqdm>=4.62.0       # 进度条显示 (可选) 
